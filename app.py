@@ -29,21 +29,24 @@ def carregar_dados():
         "Área (ha)": "Área_ha"
     })
 
-    status = status.rename(columns={
-        "Situacao": "Situação"
-    })
+    # Cria chave pela ordem das linhas: 0, 1, 2, 3...
+    gdf = gdf.reset_index(drop=True)
+    gdf["id_planilha"] = gdf.index.astype(str)
 
-    gdf["id"] = gdf["id"].astype(str)
-    status["id"] = status["id"].astype(str)
+    status["id_planilha"] = status["id"].astype(str)
+    status["Situacao"] = status["Situacao"].str.strip()
 
     gdf = gdf.drop(columns=["Situacao"], errors="ignore")
-    gdf = gdf.drop(columns=["Situação"], errors="ignore")
 
     gdf = gdf.merge(
-        status[["id", "Situação"]],
-        on="id",
+        status[["id_planilha", "Situacao"]],
+        on="id_planilha",
         how="left"
     )
+
+    gdf = gdf.rename(columns={
+        "Situacao": "Situação"
+    })
 
     return gdf, cascavel
 
@@ -123,43 +126,36 @@ folium.GeoJson(
     }
 ).add_to(m)
 
-gdf_titulados = gdf_filtrado[gdf_filtrado["Situação"] == "Titulado"]
+def adicionar_camada(dados, nome, cor):
+    if len(dados) > 0:
+        folium.GeoJson(
+            dados,
+            name=nome,
+            style_function=lambda feature: {
+                "fillColor": cor,
+                "color": cor,
+                "weight": 1,
+                "fillOpacity": 0.55
+            },
+            popup=folium.GeoJsonPopup(
+                fields=["Proprietário", "Imóvel", "Número", "Situação", "Área_ha", "Município"],
+                aliases=["Proprietário:", "Imóvel:", "Número:", "Situação:", "Área (ha):", "Município:"],
+                localize=True,
+                labels=True
+            )
+        ).add_to(m)
 
-folium.GeoJson(
-    gdf_titulados,
-    name="Imóveis titulados",
-    style_function=lambda feature: {
-        "fillColor": "green",
-        "color": "green",
-        "weight": 1,
-        "fillOpacity": 0.55
-    },
-    popup=folium.GeoJsonPopup(
-        fields=["Proprietário", "Imóvel", "Número", "Situação", "Área_ha", "Município"],
-        aliases=["Proprietário:", "Imóvel:", "Número:", "Situação:", "Área (ha):", "Município:"],
-        localize=True,
-        labels=True
-    )
-).add_to(m)
+adicionar_camada(
+    gdf_filtrado[gdf_filtrado["Situação"] == "Titulado"],
+    "Imóveis titulados",
+    "green"
+)
 
-gdf_pendentes = gdf_filtrado[gdf_filtrado["Situação"] == "Pendente de titulação"]
-
-folium.GeoJson(
-    gdf_pendentes,
-    name="Imóveis pendentes de titulação",
-    style_function=lambda feature: {
-        "fillColor": "red",
-        "color": "red",
-        "weight": 1,
-        "fillOpacity": 0.55
-    },
-    popup=folium.GeoJsonPopup(
-        fields=["Proprietário", "Imóvel", "Número", "Situação", "Área_ha", "Município"],
-        aliases=["Proprietário:", "Imóvel:", "Número:", "Situação:", "Área (ha):", "Município:"],
-        localize=True,
-        labels=True
-    )
-).add_to(m)
+adicionar_camada(
+    gdf_filtrado[gdf_filtrado["Situação"] == "Pendente de titulação"],
+    "Imóveis pendentes de titulação",
+    "red"
+)
 
 folium.LayerControl(collapsed=False).add_to(m)
 
@@ -172,7 +168,7 @@ st_folium(m, width=1200, height=650)
 st.subheader("Tabela de imóveis filtrados")
 
 tabela = gdf_filtrado[
-    ["id", "Proprietário", "Imóvel", "Número", "Situação", "Área_ha", "Município", "UF"]
+    ["id_planilha", "Proprietário", "Imóvel", "Número", "Situação", "Área_ha", "Município", "UF"]
 ]
 
 st.dataframe(tabela, use_container_width=True)
