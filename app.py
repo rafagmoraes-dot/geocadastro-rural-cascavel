@@ -250,8 +250,7 @@ legend_html = '''
 position: fixed;
 bottom: 50px;
 left: 50px;
-width: 180px;
-height: 90px;
+width: 190px;
 background-color: white;
 border:2px solid grey;
 z-index:9999;
@@ -260,11 +259,38 @@ padding: 10px;
 border-radius: 8px;
 ">
 <b>Legenda</b><br>
-<span style="color:green;">■</span> Imóveis titulados<br>
-<span style="color:red;">■</span> Pendentes de titulação<br>
-<span style="color:yellow;">■</span> Imóvel destacado
+
+<span style="
+display:inline-block;
+width:12px;
+height:12px;
+background:green;
+margin-right:5px;">
+</span>
+Imóveis titulados<br>
+
+<span style="
+display:inline-block;
+width:12px;
+height:12px;
+background:red;
+margin-right:5px;">
+</span>
+Pendentes de titulação<br>
+
+<span style="
+display:inline-block;
+width:18px;
+height:0px;
+border-top:4px solid #003366;
+margin-right:5px;">
+</span>
+Limite de Cascavel
+
 </div>
 '''
+
+m.get_root().html.add_child(folium.Element(legend_html))
 
 m.get_root().html.add_child(folium.Element(legend_html))
 
