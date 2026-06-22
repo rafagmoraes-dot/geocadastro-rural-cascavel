@@ -1,27 +1,49 @@
 import streamlit as st
 import geopandas as gpd
+import pandas as pd
 import folium
 import plotly.express as px
 from streamlit_folium import st_folium
+from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(
     page_title="GeoCadastro Rural - Cascavel",
     layout="wide"
 )
 
-@st.cache_data
+st_autorefresh(interval=60000, key="atualizacao_automatica")
+
+URL_PLANILHA = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSnrBKdKj_i4-IGlSc1dS_Vn9Go0_9whzxvwf6JL_zFW9RBfiJUSUdgdBseowgwezCNIVUGMUo-Blw_/pub?output=csv"
+
+@st.cache_data(ttl=60)
 def carregar_dados():
     gdf = gpd.read_file("cadastro_cascavel.geojson")
     cascavel = gpd.read_file("cascavel.geojson")
+    status = pd.read_csv(URL_PLANILHA)
 
     gdf = gdf.rename(columns={
         "Proprietar": "Proprietário",
         "Imovel": "Imóvel",
         "Numero": "Número",
-        "Situacao": "Situação",
-        "Área (ha)": "Área_ha",
-        "Municipio": "Município"
+        "Municipio": "Município",
+        "Área (ha)": "Área_ha"
     })
+
+    status = status.rename(columns={
+        "Situacao": "Situação"
+    })
+
+    gdf["id"] = gdf["id"].astype(str)
+    status["id"] = status["id"].astype(str)
+
+    gdf = gdf.drop(columns=["Situacao"], errors="ignore")
+    gdf = gdf.drop(columns=["Situação"], errors="ignore")
+
+    gdf = gdf.merge(
+        status[["id", "Situação"]],
+        on="id",
+        how="left"
+    )
 
     return gdf, cascavel
 
@@ -71,20 +93,12 @@ if situacao != "Todos":
 
 if busca_proprietario:
     gdf_filtrado = gdf_filtrado[
-        gdf_filtrado["Proprietário"].str.contains(
-            busca_proprietario,
-            case=False,
-            na=False
-        )
+        gdf_filtrado["Proprietário"].str.contains(busca_proprietario, case=False, na=False)
     ]
 
 if busca_imovel:
     gdf_filtrado = gdf_filtrado[
-        gdf_filtrado["Imóvel"].str.contains(
-            busca_imovel,
-            case=False,
-            na=False
-        )
+        gdf_filtrado["Imóvel"].str.contains(busca_imovel, case=False, na=False)
     ]
 
 gdf_filtrado = gdf_filtrado[
@@ -149,37 +163,16 @@ folium.GeoJson(
 
 folium.LayerControl(collapsed=False).add_to(m)
 
-legend_html = """
-<div style="
-position: fixed;
-bottom: 50px;
-left: 50px;
-width: 230px;
-height: 105px;
-background-color: white;
-border:2px solid grey;
-z-index:9999;
-font-size:14px;
-padding: 10px;
-color: black;
-">
-<b>Legenda</b><br>
-<span style="color:green;">●</span> Imóveis titulados<br>
-<span style="color:red;">●</span> Pendentes de titulação<br>
-<span style="color:#003366;">▬</span> Limite de Cascavel
-</div>
-"""
-
-m.get_root().html.add_child(folium.Element(legend_html))
-
 st.subheader("Mapa interativo dos imóveis")
 st.write(f"Imóveis exibidos no mapa: **{len(gdf_filtrado)}**")
+st.caption("A situação fundiária é lida de uma planilha Google Sheets publicada como CSV e atualizada automaticamente a cada 60 segundos.")
+
 st_folium(m, width=1200, height=650)
 
 st.subheader("Tabela de imóveis filtrados")
 
 tabela = gdf_filtrado[
-    ["Proprietário", "Imóvel", "Número", "Situação", "Área_ha", "Município", "UF"]
+    ["id", "Proprietário", "Imóvel", "Número", "Situação", "Área_ha", "Município", "UF"]
 ]
 
 st.dataframe(tabela, use_container_width=True)
