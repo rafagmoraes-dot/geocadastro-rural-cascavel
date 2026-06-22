@@ -157,9 +157,9 @@ import plotly.express as px
 
 st.subheader("Estatísticas dos imóveis")
 
-col_graf1, col_graf2 = st.columns(2)
+col1, col2 = st.columns(2)
 
-with col_graf1:
+with col1:
     contagem = gdf_filtrado["Situação"].value_counts().reset_index()
     contagem.columns = ["Situação", "Quantidade"]
 
@@ -172,7 +172,7 @@ with col_graf1:
 
     st.plotly_chart(fig_pizza, use_container_width=True)
 
-with col_graf2:
+with col2:
     area_situacao = (
         gdf_filtrado
         .groupby("Situação")["Área_ha"]
@@ -188,15 +188,6 @@ with col_graf2:
     )
 
     st.plotly_chart(fig_barra, use_container_width=True)
-
-st.subheader("Top 10 maiores imóveis")
-
-top10 = (
-    gdf_filtrado[
-        ["Proprietário", "Imóvel", "Situação", "Área_ha"]
-    ]
-    .sort_values("Área_ha", ascending=False)
-    .head(10)
 )
 
 st.dataframe(top10, use_container_width=True)
