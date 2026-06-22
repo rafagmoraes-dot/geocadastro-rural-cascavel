@@ -84,7 +84,6 @@ Esta metodologia pode ser empregada em:
 - Prefeituras municipais;
 - Secretarias de Agricultura;
 - Projetos de regularização fundiária;
-- Instituições de Assistência Técnica e Extensão Rural (ATER);
 - Cooperativas e associações de produtores;
 - Projetos acadêmicos;
 - Pequenas equipes que necessitam de atualização frequente das informações.
