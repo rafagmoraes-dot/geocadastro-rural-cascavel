@@ -389,7 +389,7 @@ with col_graf1:
         }
     )
 
-    st.plotly_chart(fig_pizza, use_container_width=True)
+    st.plotly_chart(fig_pizza, use_container_width=True, key="grafico_pizza_situacao")
 
 with col_graf2:
     area_situacao = (
@@ -413,7 +413,7 @@ with col_graf2:
         }
     )
 
-    st.plotly_chart(fig_barra, use_container_width=True)
+    st.plotly_chart(fig_barra, use_container_width=True, key="grafico_barra_area")
 
 with col_graf2:
     area_situacao = (
