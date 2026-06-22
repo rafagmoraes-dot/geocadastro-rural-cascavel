@@ -91,22 +91,6 @@ gdf_filtrado = gdf_filtrado[
     (gdf_filtrado["Área_ha"] <= faixa_area[1])
 ]
 
-st.subheader("Resumo da seleção")
-
-col5, col6, col7, col8 = st.columns(4)
-
-with col5:
-    st.metric("Imóveis exibidos", len(gdf_filtrado))
-
-with col6:
-    st.metric("Titulados exibidos", len(gdf_filtrado[gdf_filtrado["Situação"] == "Titulado"]))
-
-with col7:
-    st.metric("Pendentes exibidos", len(gdf_filtrado[gdf_filtrado["Situação"] == "Pendente de titulação"]))
-
-with col8:
-    st.metric("Área filtrada (ha)", round(gdf_filtrado["Área_ha"].sum(), 2))
-
 def estilo_imovel(feature):
     situacao = feature["properties"]["Situação"]
 
@@ -175,6 +159,7 @@ color: black;
 m.get_root().html.add_child(folium.Element(legend_html))
 
 st.subheader("Mapa interativo dos imóveis")
+st.write(f"Imóveis exibidos no mapa: **{len(gdf_filtrado)}**")
 st_folium(m, width=1200, height=650)
 
 st.subheader("Tabela de imóveis filtrados")
@@ -183,10 +168,7 @@ tabela = gdf_filtrado[
     ["Proprietário", "Imóvel", "Número", "Situação", "Área_ha", "Município", "UF"]
 ]
 
-st.dataframe(
-    tabela,
-    use_container_width=True
-)
+st.dataframe(tabela, use_container_width=True)
 
 csv = tabela.to_csv(index=False).encode("utf-8")
 
