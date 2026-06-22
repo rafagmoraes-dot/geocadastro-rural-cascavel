@@ -34,7 +34,6 @@ def carregar_dados():
 
     return gdf, cascavel
 
-
 gdf, cascavel = carregar_dados()
 
 st.title("GeoCadastro Rural - Cascavel")
@@ -132,6 +131,7 @@ def adicionar_camada(dados, nome, cor):
             },
             popup=folium.GeoJsonPopup(
                 fields=[
+                    "id",
                     "Proprietario",
                     "Imovel",
                     "Numero",
@@ -144,6 +144,7 @@ def adicionar_camada(dados, nome, cor):
                     "Data de Atualização"
                 ],
                 aliases=[
+                    "ID:",
                     "Proprietário:",
                     "Imóvel:",
                     "Número:",
@@ -153,7 +154,7 @@ def adicionar_camada(dados, nome, cor):
                     "UF:",
                     "Observação:",
                     "Responsável:",
-                    "Data da atualização:"
+                    "Data de atualização:"
                 ],
                 localize=True,
                 labels=True
