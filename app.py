@@ -116,7 +116,7 @@ gdf_filtrado = gdf_filtrado[
 m = folium.Map(
     location=[-24.95, -53.45],
     zoom_start=10,
-    tiles="OpenStreetMap"
+    tiles="CartoDB Positron"
 )
 
 folium.GeoJson(
