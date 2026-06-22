@@ -355,6 +355,10 @@ if evento_tabela.selection.rows:
     if st.session_state["id_destacado"] != novo_id:
         st.session_state["id_destacado"] = novo_id
         st.rerun()
+else:
+    if st.session_state["id_destacado"] is not None:
+        st.session_state["id_destacado"] = None
+        st.rerun()
 
 csv = tabela.to_csv(index=False).encode("utf-8")
 
