@@ -1,6 +1,7 @@
 import streamlit as st
 import geopandas as gpd
 import folium
+import plotly.express as px
 from streamlit_folium import st_folium
 
 st.set_page_config(
@@ -28,7 +29,6 @@ gdf = carregar_dados()
 st.title("GeoCadastro Rural - Cascavel")
 st.write("Sistema WebGIS para consulta da situação fundiária dos imóveis rurais do município de Cascavel.")
 
-# Indicadores gerais
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
@@ -43,7 +43,6 @@ with col3:
 with col4:
     st.metric("Área total (ha)", round(gdf["Área_ha"].sum(), 2))
 
-# Sidebar
 st.sidebar.header("Filtros")
 
 situacao = st.sidebar.selectbox(
@@ -52,7 +51,6 @@ situacao = st.sidebar.selectbox(
 )
 
 busca_proprietario = st.sidebar.text_input("Buscar por proprietário")
-
 busca_imovel = st.sidebar.text_input("Buscar por imóvel")
 
 area_min = float(gdf["Área_ha"].min())
@@ -65,7 +63,6 @@ faixa_area = st.sidebar.slider(
     value=(area_min, area_max)
 )
 
-# Aplicar filtros
 gdf_filtrado = gdf.copy()
 
 if situacao != "Todos":
@@ -94,8 +91,21 @@ gdf_filtrado = gdf_filtrado[
     (gdf_filtrado["Área_ha"] <= faixa_area[1])
 ]
 
-st.subheader("Mapa interativo dos imóveis")
-st.write(f"Imóveis exibidos no mapa: **{len(gdf_filtrado)}**")
+st.subheader("Resumo da seleção")
+
+col5, col6, col7, col8 = st.columns(4)
+
+with col5:
+    st.metric("Imóveis exibidos", len(gdf_filtrado))
+
+with col6:
+    st.metric("Titulados exibidos", len(gdf_filtrado[gdf_filtrado["Situação"] == "Titulado"]))
+
+with col7:
+    st.metric("Pendentes exibidos", len(gdf_filtrado[gdf_filtrado["Situação"] == "Pendente de titulação"]))
+
+with col8:
+    st.metric("Área filtrada (ha)", round(gdf_filtrado["Área_ha"].sum(), 2))
 
 def estilo_imovel(feature):
     situacao = feature["properties"]["Situação"]
@@ -142,24 +152,56 @@ folium.GeoJson(
     )
 ).add_to(m)
 
+legend_html = """
+<div style="
+position: fixed;
+bottom: 50px;
+left: 50px;
+width: 220px;
+height: 90px;
+background-color: white;
+border:2px solid grey;
+z-index:9999;
+font-size:14px;
+padding: 10px;
+color: black;
+">
+<b>Legenda</b><br>
+<span style="color:green;">●</span> Titulado<br>
+<span style="color:red;">●</span> Pendente de titulação
+</div>
+"""
+
+m.get_root().html.add_child(folium.Element(legend_html))
+
+st.subheader("Mapa interativo dos imóveis")
 st_folium(m, width=1200, height=650)
 
 st.subheader("Tabela de imóveis filtrados")
 
+tabela = gdf_filtrado[
+    ["Proprietário", "Imóvel", "Número", "Situação", "Área_ha", "Município", "UF"]
+]
+
 st.dataframe(
-    gdf_filtrado[
-        ["Proprietário", "Imóvel", "Número", "Situação", "Área_ha", "Município", "UF"]
-    ],
+    tabela,
     use_container_width=True
 )
 
-import plotly.express as px
+csv = tabela.to_csv(index=False).encode("utf-8")
 
-st.subheader("Estatísticas dos imóveis")
+st.download_button(
+    "⬇️ Baixar dados filtrados em CSV",
+    csv,
+    "imoveis_filtrados.csv",
+    "text/csv"
+)
 
-col1, col2 = st.columns(2)
+st.subheader("Estatísticas dos imóveis filtrados")
 
-with col1:
+col_graf1, col_graf2 = st.columns(2)
+
+with col_graf1:
     contagem = gdf_filtrado["Situação"].value_counts().reset_index()
     contagem.columns = ["Situação", "Quantidade"]
 
@@ -172,7 +214,7 @@ with col1:
 
     st.plotly_chart(fig_pizza, use_container_width=True)
 
-with col2:
+with col_graf2:
     area_situacao = (
         gdf_filtrado
         .groupby("Situação")["Área_ha"]
@@ -188,6 +230,3 @@ with col2:
     )
 
     st.plotly_chart(fig_barra, use_container_width=True)
-)
-
-st.dataframe(top10, use_container_width=True)
