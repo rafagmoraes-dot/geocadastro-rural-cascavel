@@ -137,7 +137,8 @@ def adicionar_camada(dados, nome, cor):
                     "Situacao",
                     "Área (ha)",
                     "Município",
-                    "UF"
+                    "UF",
+                    "Observacao"
                 ],
                 aliases=[
                     "Proprietário:",
@@ -146,7 +147,8 @@ def adicionar_camada(dados, nome, cor):
                     "Situação:",
                     "Área (ha):",
                     "Município:",
-                    "UF:"
+                    "UF:",
+                    "Observação:"
                 ],
                 localize=True,
                 labels=True
@@ -176,7 +178,17 @@ st_folium(m, width=1200, height=650)
 st.subheader("Tabela de imóveis filtrados")
 
 tabela = gdf_filtrado[
-    ["id", "Proprietario", "Imovel", "Numero", "Situacao", "Área (ha)", "Município", "UF"]
+    [
+        "id",
+        "Proprietario",
+        "Imovel",
+        "Numero",
+        "Situacao",
+        "Área (ha)",
+        "Município",
+        "UF",
+        "Observacao"
+    ]
 ]
 
 st.dataframe(tabela, use_container_width=True)
