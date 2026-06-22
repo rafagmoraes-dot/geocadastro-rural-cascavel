@@ -22,7 +22,7 @@ def carregar_dados():
     tabela = pd.read_csv(URL_PLANILHA)
 
     gdf_geo["id"] = gdf_geo["id"].astype(int).astype(str)
-tabela["id"] = tabela["id"].astype(float).astype(int).astype(str)
+    tabela["id"] = tabela["id"].astype(float).astype(int).astype(str)
 
     gdf = gdf_geo[["id", "geometry"]].merge(
         tabela,
