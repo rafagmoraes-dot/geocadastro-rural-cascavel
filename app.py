@@ -209,17 +209,18 @@ if id_selecionado is not None:
     gdf_selecionado = gdf_filtrado[gdf_filtrado["id"] == id_selecionado]
 
     if len(gdf_selecionado) > 0:
-        folium.GeoJson(
-            data=gdf_selecionado,
-            show=True,
-            control=False,
+        destaque = folium.GeoJson(
+            gdf_selecionado,
+            name=f"Imóvel selecionado - ID {id_selecionado}",
             style_function=lambda feature: {
                 "fillColor": "yellow",
                 "color": "yellow",
                 "weight": 6,
                 "fillOpacity": 0.35
             }
-        ).add_to(m)
+        )
+
+        destaque.add_to(m)
         
             popup=folium.GeoJsonPopup(
                 fields=[
