@@ -113,6 +113,48 @@ gdf_filtrado = gdf_filtrado[
     (gdf_filtrado["Área (ha)"] <= faixa_area[1])
 ]
 
+st.subheader("Tabela de imóveis filtrados")
+
+tabela = gdf_filtrado[
+    [
+        "id",
+        "Proprietario",
+        "Imovel",
+        "Numero",
+        "Situacao",
+        "Área (ha)",
+        "Município",
+        "UF",
+        "Observação",
+        "Responsável",
+        "Data de Atualização"
+    ]
+]
+
+evento_tabela = st.dataframe(
+    tabela,
+    use_container_width=True,
+    hide_index=True,
+    on_select="rerun",
+    selection_mode="single-row"
+)
+
+id_selecionado = None
+
+if evento_tabela.selection.rows:
+    linha_selecionada = evento_tabela.selection.rows[0]
+    id_selecionado = str(tabela.iloc[linha_selecionada]["id"])
+    st.success(f"Imóvel selecionado: ID {id_selecionado}")
+
+csv = tabela.to_csv(index=False).encode("utf-8")
+
+st.download_button(
+    "⬇️ Baixar dados filtrados em CSV",
+    csv,
+    "imoveis_filtrados.csv",
+    "text/csv"
+)
+
 m = folium.Map(
     location=[-24.95, -53.45],
     zoom_start=10,
@@ -185,6 +227,51 @@ adicionar_camada(
     "red"
 )
 
+if id_selecionado is not None:
+    gdf_selecionado = gdf_filtrado[gdf_filtrado["id"] == id_selecionado]
+
+    if len(gdf_selecionado) > 0:
+        folium.GeoJson(
+            gdf_selecionado,
+            name=f"Imóvel selecionado - ID {id_selecionado}",
+            style_function=lambda feature: {
+                "fillColor": "yellow",
+                "color": "yellow",
+                "weight": 6,
+                "fillOpacity": 0.35
+            },
+            popup=folium.GeoJsonPopup(
+                fields=[
+                    "id",
+                    "Proprietario",
+                    "Imovel",
+                    "Numero",
+                    "Situacao",
+                    "Área (ha)",
+                    "Município",
+                    "UF",
+                    "Observação",
+                    "Responsável",
+                    "Data de Atualização"
+                ],
+                aliases=[
+                    "ID:",
+                    "Proprietário:",
+                    "Imóvel:",
+                    "Número:",
+                    "Situação:",
+                    "Área (ha):",
+                    "Município:",
+                    "UF:",
+                    "Observação:",
+                    "Responsável:",
+                    "Data de atualização:"
+                ],
+                localize=True,
+                labels=True
+            )
+        ).add_to(m)
+
 folium.LayerControl(collapsed=False).add_to(m)
 
 st.subheader("Mapa interativo dos imóveis")
@@ -192,35 +279,6 @@ st.write(f"Imóveis exibidos no mapa: **{len(gdf_filtrado)}**")
 st.caption("A tabela de atributos é lida de uma planilha Google Sheets publicada como CSV e atualizada automaticamente a cada 30 segundos.")
 
 st_folium(m, width=1200, height=650)
-
-st.subheader("Tabela de imóveis filtrados")
-
-tabela = gdf_filtrado[
-    [
-        "id",
-        "Proprietario",
-        "Imovel",
-        "Numero",
-        "Situacao",
-        "Área (ha)",
-        "Município",
-        "UF",
-        "Observação",
-        "Responsável",
-        "Data de Atualização"
-    ]
-]
-
-st.dataframe(tabela, use_container_width=True)
-
-csv = tabela.to_csv(index=False).encode("utf-8")
-
-st.download_button(
-    "⬇️ Baixar dados filtrados em CSV",
-    csv,
-    "imoveis_filtrados.csv",
-    "text/csv"
-)
 
 st.subheader("Estatísticas dos imóveis filtrados")
 
