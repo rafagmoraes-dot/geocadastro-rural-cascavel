@@ -13,7 +13,6 @@ st.set_page_config(
 def carregar_dados():
     gdf = gpd.read_file("cadastro_cascavel.geojson")
     cascavel = gpd.read_file("cascavel.geojson")
-    parana = gpd.read_file("parana.geojson")
 
     gdf = gdf.rename(columns={
         "Proprietar": "Proprietário",
@@ -24,10 +23,9 @@ def carregar_dados():
         "Municipio": "Município"
     })
 
-    return gdf, cascavel, parana
+    return gdf, cascavel
 
-
-gdf, cascavel, parana = carregar_dados()
+gdf, cascavel = carregar_dados()
 
 st.title("GeoCadastro Rural - Cascavel")
 st.write("Sistema WebGIS para consulta da situação fundiária dos imóveis rurais do município de Cascavel.")
@@ -45,7 +43,6 @@ with col3:
 
 with col4:
     st.metric("Área total (ha)", round(gdf["Área_ha"].sum(), 2))
-
 
 st.sidebar.header("Filtros")
 
@@ -95,38 +92,23 @@ gdf_filtrado = gdf_filtrado[
     (gdf_filtrado["Área_ha"] <= faixa_area[1])
 ]
 
-
 m = folium.Map(
     location=[-24.95, -53.45],
-    zoom_start=9,
+    zoom_start=10,
     tiles="OpenStreetMap"
 )
 
-# Municípios do Paraná em cinza claro
-folium.GeoJson(
-    parana,
-    name="Municípios do Paraná",
-    style_function=lambda feature: {
-        "fillColor": "#f2f2f2",
-        "color": "#bdbdbd",
-        "weight": 0.6,
-        "fillOpacity": 0.15
-    }
-).add_to(m)
-
-# Limite de Cascavel com destaque
 folium.GeoJson(
     cascavel,
     name="Limite de Cascavel",
     style_function=lambda feature: {
         "fillColor": "transparent",
-        "color": "#000000",
+        "color": "#003366",
         "weight": 3,
         "fillOpacity": 0
     }
 ).add_to(m)
 
-# Camada de imóveis titulados
 gdf_titulados = gdf_filtrado[gdf_filtrado["Situação"] == "Titulado"]
 
 folium.GeoJson(
@@ -146,7 +128,6 @@ folium.GeoJson(
     )
 ).add_to(m)
 
-# Camada de imóveis pendentes
 gdf_pendentes = gdf_filtrado[gdf_filtrado["Situação"] == "Pendente de titulação"]
 
 folium.GeoJson(
@@ -185,7 +166,7 @@ color: black;
 <b>Legenda</b><br>
 <span style="color:green;">●</span> Imóveis titulados<br>
 <span style="color:red;">●</span> Pendentes de titulação<br>
-<span style="color:black;">▬</span> Limite de Cascavel
+<span style="color:#003366;">▬</span> Limite de Cascavel
 </div>
 """
 
@@ -194,7 +175,6 @@ m.get_root().html.add_child(folium.Element(legend_html))
 st.subheader("Mapa interativo dos imóveis")
 st.write(f"Imóveis exibidos no mapa: **{len(gdf_filtrado)}**")
 st_folium(m, width=1200, height=650)
-
 
 st.subheader("Tabela de imóveis filtrados")
 
@@ -212,7 +192,6 @@ st.download_button(
     "imoveis_filtrados.csv",
     "text/csv"
 )
-
 
 st.subheader("Estatísticas dos imóveis filtrados")
 
