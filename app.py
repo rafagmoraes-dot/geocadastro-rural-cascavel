@@ -131,14 +131,14 @@ def adicionar_camada(dados, nome, cor):
             },
             popup=folium.GeoJsonPopup(
                 fields=[
-                    "Proprietario",
-                    "Imovel",
-                    "Numero",
-                    "Situacao",
-                    "Área (ha)",
-                    "Município",
-                    "UF",
-                    "Observacao"
+    "Proprietario",
+    "Imovel",
+    "Numero",
+    "Situacao",
+    "Área (ha)",
+    "Município",
+    "UF"
+]
                 ],
                 aliases=[
                     "Proprietário:",
