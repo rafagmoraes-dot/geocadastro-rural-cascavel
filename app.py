@@ -189,7 +189,7 @@ folium.LayerControl(collapsed=False).add_to(m)
 
 st.subheader("Mapa interativo dos imóveis")
 st.write(f"Imóveis exibidos no mapa: **{len(gdf_filtrado)}**")
-st.caption("A tabela de atributos é lida de uma planilha Google Sheets publicada como CSV e atualizada automaticamente a cada 60 segundos.")
+st.caption("A tabela de atributos é lida de uma planilha Google Sheets publicada como CSV e atualizada automaticamente a cada 30 segundos.")
 
 st_folium(m, width=1200, height=650)
 
