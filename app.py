@@ -210,15 +210,17 @@ if id_selecionado is not None:
 
     if len(gdf_selecionado) > 0:
         folium.GeoJson(
-            gdf_selecionado,
-            name=None,
+            data=gdf_selecionado,
+            show=True,
             control=False,
             style_function=lambda feature: {
                 "fillColor": "yellow",
                 "color": "yellow",
                 "weight": 6,
                 "fillOpacity": 0.35
-            },
+            }
+        ).add_to(m)
+        
             popup=folium.GeoJsonPopup(
                 fields=[
                     "id",
