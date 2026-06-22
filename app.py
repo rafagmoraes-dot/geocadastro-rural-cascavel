@@ -11,7 +11,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st_autorefresh(interval=60000, key="atualizacao_automatica")
+st_autorefresh(interval=30000, key="atualizacao_automatica")
 
 URL_PLANILHA = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSmKq5S5dpSJBpbmPiP8cpR2K3h3hoYMpmf6NJDpNSvVVyxLnxAxEJFhePInJgvbYvrbKhMvMN1e1pt/pub?output=csv"
 
