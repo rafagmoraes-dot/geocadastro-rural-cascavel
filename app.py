@@ -11,7 +11,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st_autorefresh(interval=30000, key="atualizacao_automatica")
+st_autorefresh(interval=15000, key="atualizacao_automatica")
 
 URL_PLANILHA = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSmKq5S5dpSJBpbmPiP8cpR2K3h3hoYMpmf6NJDpNSvVVyxLnxAxEJFhePInJgvbYvrbKhMvMN1e1pt/pub?output=csv"
 
@@ -211,7 +211,8 @@ if id_selecionado is not None:
     if len(gdf_selecionado) > 0:
         folium.GeoJson(
             gdf_selecionado,
-            name=f"Imóvel selecionado - ID {id_selecionado}",
+            name=None,
+            control=False,
             style_function=lambda feature: {
                 "fillColor": "yellow",
                 "color": "yellow",
@@ -318,7 +319,7 @@ folium.LayerControl(collapsed=False).add_to(m)
 
 st.subheader("Mapa interativo dos imóveis")
 st.write(f"Imóveis exibidos no mapa: **{len(gdf_filtrado)}**")
-st.caption("A tabela de atributos é lida de uma planilha Google Sheets publicada como CSV e atualizada automaticamente a cada 30 segundos.")
+st.caption("A tabela de atributos é lida de uma planilha Google Sheets publicada como CSV e atualizada automaticamente a cada 15 segundos.")
 
 st_folium(m, width=1200, height=650)
 
