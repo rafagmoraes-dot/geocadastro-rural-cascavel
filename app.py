@@ -28,6 +28,7 @@ gdf = carregar_dados()
 st.title("GeoCadastro Rural - Cascavel")
 st.write("Sistema WebGIS para consulta da situação fundiária dos imóveis rurais do município de Cascavel.")
 
+# Indicadores gerais
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
@@ -42,6 +43,7 @@ with col3:
 with col4:
     st.metric("Área total (ha)", round(gdf["Área_ha"].sum(), 2))
 
+# Sidebar
 st.sidebar.header("Filtros")
 
 situacao = st.sidebar.selectbox(
@@ -49,11 +51,53 @@ situacao = st.sidebar.selectbox(
     ["Todos", "Titulado", "Pendente de titulação"]
 )
 
-if situacao == "Todos":
-    gdf_filtrado = gdf.copy()
-else:
-    gdf_filtrado = gdf[gdf["Situação"] == situacao].copy()
+busca_proprietario = st.sidebar.text_input("Buscar por proprietário")
 
+busca_imovel = st.sidebar.text_input("Buscar por imóvel")
+
+area_min = float(gdf["Área_ha"].min())
+area_max = float(gdf["Área_ha"].max())
+
+faixa_area = st.sidebar.slider(
+    "Filtrar por área (ha)",
+    min_value=area_min,
+    max_value=area_max,
+    value=(area_min, area_max)
+)
+
+# Aplicar filtros
+gdf_filtrado = gdf.copy()
+
+if situacao != "Todos":
+    gdf_filtrado = gdf_filtrado[gdf_filtrado["Situação"] == situacao]
+
+if busca_proprietario:
+    gdf_filtrado = gdf_filtrado[
+        gdf_filtrado["Proprietário"].str.contains(
+            busca_proprietario,
+            case=False,
+            na=False
+        )
+    ]
+
+if busca_imovel:
+    gdf_filtrado = gdf_filtrado[
+        gdf_filtrado["Imóvel"].str.contains(
+            busca_imovel,
+            case=False,
+            na=False
+        )
+    ]
+
+gdf_filtrado = gdf_filtrado[
+    (gdf_filtrado["Área_ha"] >= faixa_area[0]) &
+    (gdf_filtrado["Área_ha"] <= faixa_area[1])
+]
+
+st.subheader("Mapa interativo dos imóveis")
+st.write(f"Imóveis exibidos no mapa: **{len(gdf_filtrado)}**")
+
+# Estilo do mapa
 def estilo_imovel(feature):
     situacao = feature["properties"]["Situação"]
 
@@ -99,5 +143,14 @@ folium.GeoJson(
     )
 ).add_to(m)
 
-st.subheader("Mapa interativo dos imóveis")
 st_folium(m, width=1200, height=650)
+
+# Tabela
+st.subheader("Tabela de imóveis filtrados")
+
+st.dataframe(
+    gdf_filtrado[
+        ["Proprietário", "Imóvel", "Número", "Situação", "Área_ha", "Município", "UF"]
+    ],
+    use_container_width=True
+)
