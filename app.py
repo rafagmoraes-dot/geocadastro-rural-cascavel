@@ -21,8 +21,8 @@ def carregar_dados():
     cascavel = gpd.read_file("cascavel.geojson")
     tabela = pd.read_csv(URL_PLANILHA)
 
-    gdf_geo["id"] = gdf_geo["id"].astype(str)
-    tabela["id"] = tabela["id"].astype(str)
+    gdf_geo["id"] = gdf_geo["id"].astype(int).astype(str)
+tabela["id"] = tabela["id"].astype(float).astype(int).astype(str)
 
     gdf = gdf_geo[["id", "geometry"]].merge(
         tabela,
