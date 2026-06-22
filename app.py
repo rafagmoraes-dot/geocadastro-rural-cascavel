@@ -377,7 +377,7 @@ with col_graf1:
     contagem = gdf_filtrado["Situacao"].value_counts().reset_index()
     contagem.columns = ["Situação", "Quantidade"]
 
-   fig_pizza = px.pie(
+ fig_pizza = px.pie(
     contagem,
     values="Quantidade",
     names="Situação",
@@ -402,10 +402,15 @@ with col_graf2:
     area_situacao.columns = ["Situação", "Área (ha)"]
 
     fig_barra = px.bar(
-        area_situacao,
-        x="Situação",
-        y="Área (ha)",
-        title="Área total por situação fundiária"
-    )
+    area_situacao,
+    x="Situação",
+    y="Área (ha)",
+    title="Área total por situação fundiária",
+    color="Situação",
+    color_discrete_map={
+        "Titulado": "green",
+        "Pendente de titulação": "red"
+    }
+)
 
     st.plotly_chart(fig_barra, use_container_width=True)
