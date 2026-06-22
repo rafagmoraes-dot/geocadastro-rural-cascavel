@@ -377,12 +377,17 @@ with col_graf1:
     contagem = gdf_filtrado["Situacao"].value_counts().reset_index()
     contagem.columns = ["Situação", "Quantidade"]
 
-    fig_pizza = px.pie(
-        contagem,
-        values="Quantidade",
-        names="Situação",
-        title="Distribuição por situação fundiária"
-    )
+   fig_pizza = px.pie(
+    contagem,
+    values="Quantidade",
+    names="Situação",
+    title="Distribuição por situação fundiária",
+    color="Situação",
+    color_discrete_map={
+        "Titulado": "green",
+        "Pendente de titulação": "red"
+    }
+)
 
     st.plotly_chart(fig_pizza, use_container_width=True)
 
