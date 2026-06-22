@@ -21,8 +21,15 @@ def carregar_dados():
     cascavel = gpd.read_file("cascavel.geojson")
     tabela = pd.read_csv(URL_PLANILHA)
 
-    gdf_geo["id"] = gdf_geo["id"].astype(float).astype(int).astype(str)
-    tabela["id"] = tabela["id"].astype(float).astype(int).astype(str)
+    gdf_geo["id"] = pd.to_numeric(
+        gdf_geo["id"],
+        errors="coerce"
+    ).fillna(-1).astype(int).astype(str)
+
+    tabela["id"] = pd.to_numeric(
+        tabela["id"],
+        errors="coerce"
+    ).fillna(-1).astype(int).astype(str)
 
     gdf = gdf_geo[["id", "geometry"]].merge(
         tabela,
@@ -30,7 +37,10 @@ def carregar_dados():
         how="left"
     )
 
-    gdf["id"] = gdf["id"].astype(float).astype(int).astype(str)
+    gdf["id"] = pd.to_numeric(
+        gdf["id"],
+        errors="coerce"
+    ).fillna(-1).astype(int).astype(str)
 
     gdf = gpd.GeoDataFrame(gdf, geometry="geometry", crs=gdf_geo.crs)
 
