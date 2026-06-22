@@ -127,6 +127,11 @@ id_selecionado = st.sidebar.selectbox(
 
 if id_selecionado == "Nenhum":
     id_selecionado = None
+    
+if "id_destacado" not in st.session_state:
+    st.session_state["id_destacado"] = None
+
+id_selecionado = st.session_state["id_destacado"]
 
 m = folium.Map(
     location=[-24.95, -53.45],
@@ -294,6 +299,21 @@ m.get_root().html.add_child(folium.Element(legend_html))
 
 m.get_root().html.add_child(folium.Element(legend_html))
 
+if id_selecionado is not None:
+    gdf_selecionado = gdf_filtrado[gdf_filtrado["id"] == id_selecionado]
+
+    if len(gdf_selecionado) > 0:
+        folium.GeoJson(
+            gdf_selecionado,
+            name=f"Imóvel selecionado - ID {id_selecionado}",
+            style_function=lambda feature: {
+                "fillColor": "yellow",
+                "color": "yellow",
+                "weight": 6,
+                "fillOpacity": 0.35
+            }
+        ).add_to(m)
+
 folium.LayerControl(collapsed=False).add_to(m)
 
 st.subheader("Mapa interativo dos imóveis")
@@ -320,11 +340,21 @@ tabela = gdf_filtrado[
     ]
 ]
 
-st.dataframe(
+evento_tabela = st.dataframe(
     tabela,
     use_container_width=True,
-    hide_index=True
+    hide_index=True,
+    on_select="rerun",
+    selection_mode="single-row"
 )
+
+if evento_tabela.selection.rows:
+    linha = evento_tabela.selection.rows[0]
+    novo_id = str(tabela.iloc[linha]["id"])
+
+    if st.session_state["id_destacado"] != novo_id:
+        st.session_state["id_destacado"] = novo_id
+        st.rerun()
 
 csv = tabela.to_csv(index=False).encode("utf-8")
 
