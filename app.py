@@ -113,21 +113,6 @@ gdf_filtrado = gdf_filtrado[
     (gdf_filtrado["Área (ha)"] <= faixa_area[1])
 ]
 
-st.sidebar.header("Destaque")
-
-ids_disponiveis = ["Nenhum"] + sorted(
-    gdf_filtrado["id"].dropna().astype(str).unique().tolist(),
-    key=lambda x: int(x) if x.isdigit() else 999999
-)
-
-id_selecionado = st.sidebar.selectbox(
-    "Destacar imóvel pelo ID",
-    ids_disponiveis
-)
-
-if id_selecionado == "Nenhum":
-    id_selecionado = None
-    
 if "id_destacado" not in st.session_state:
     st.session_state["id_destacado"] = None
 
@@ -297,23 +282,6 @@ Limite de Cascavel
 
 m.get_root().html.add_child(folium.Element(legend_html))
 
-m.get_root().html.add_child(folium.Element(legend_html))
-
-if id_selecionado is not None:
-    gdf_selecionado = gdf_filtrado[gdf_filtrado["id"] == id_selecionado]
-
-    if len(gdf_selecionado) > 0:
-        folium.GeoJson(
-            gdf_selecionado,
-            name=f"Imóvel selecionado - ID {id_selecionado}",
-            style_function=lambda feature: {
-                "fillColor": "yellow",
-                "color": "yellow",
-                "weight": 6,
-                "fillOpacity": 0.35
-            }
-        ).add_to(m)
-
 folium.LayerControl(collapsed=False).add_to(m)
 
 st.subheader("Mapa interativo dos imóveis")
@@ -414,27 +382,3 @@ with col_graf2:
     )
 
     st.plotly_chart(fig_barra, use_container_width=True, key="grafico_barra_area")
-
-with col_graf2:
-    area_situacao = (
-        gdf_filtrado
-        .groupby("Situacao")["Área (ha)"]
-        .sum()
-        .reset_index()
-    )
-
-    area_situacao.columns = ["Situação", "Área (ha)"]
-
-    fig_barra = px.bar(
-    area_situacao,
-    x="Situação",
-    y="Área (ha)",
-    title="Área total por situação fundiária",
-    color="Situação",
-    color_discrete_map={
-        "Titulado": "green",
-        "Pendente de titulação": "red"
-    }
-)
-
-    st.plotly_chart(fig_barra, use_container_width=True)
