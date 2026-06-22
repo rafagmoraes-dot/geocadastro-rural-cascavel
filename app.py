@@ -22,7 +22,6 @@ def carregar_dados():
     return gdf
 
 gdf = carregar_dados()
-
 st.sidebar.title("Navegação")
 st.sidebar.page_link("app.py", label="🏠 Home")
 st.sidebar.page_link("pages/1_Mapa_Interativo.py", label="🗺️ Mapa Interativo")
