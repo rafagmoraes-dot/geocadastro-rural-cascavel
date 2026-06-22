@@ -34,6 +34,7 @@ def carregar_dados():
 
     return gdf, cascavel
 
+
 gdf, cascavel = carregar_dados()
 
 st.title("GeoCadastro Rural - Cascavel")
@@ -138,7 +139,9 @@ def adicionar_camada(dados, nome, cor):
                     "Área (ha)",
                     "Município",
                     "UF",
-                    "Observação"
+                    "Observação",
+                    "Responsável",
+                    "Data de Atualização"
                 ],
                 aliases=[
                     "Proprietário:",
@@ -148,7 +151,9 @@ def adicionar_camada(dados, nome, cor):
                     "Área (ha):",
                     "Município:",
                     "UF:",
-                    "Observação:"
+                    "Observação:",
+                    "Responsável:",
+                    "Data da atualização:"
                 ],
                 localize=True,
                 labels=True
@@ -187,7 +192,9 @@ tabela = gdf_filtrado[
         "Área (ha)",
         "Município",
         "UF",
-        "Observação"
+        "Observação",
+        "Responsável",
+        "Data de Atualização"
     ]
 ]
 
