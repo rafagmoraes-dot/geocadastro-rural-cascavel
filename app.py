@@ -46,6 +46,14 @@ def carregar_dados():
 
     return gdf, cascavel
 
+@st.cache_data
+def carregar_readme():
+    try:
+        with open("README.md", "r", encoding="utf-8") as arquivo:
+            return arquivo.read()
+    except FileNotFoundError:
+        return "Arquivo README.md não encontrado no repositório."
+
 gdf, cascavel = carregar_dados()
 
 st.title("GeoCadastro Rural - Cascavel")
@@ -83,6 +91,16 @@ faixa_area = st.sidebar.slider(
     min_value=area_min,
     max_value=area_max,
     value=(area_min, area_max)
+)
+
+st.sidebar.markdown("---")
+st.sidebar.header("Sobre o projeto")
+st.sidebar.markdown(
+    """
+    Aplicação WebGIS desenvolvida em Python e Streamlit.
+
+    📄 A documentação completa está disponível no final da página, na seção **Documentação do projeto**.
+    """
 )
 
 gdf_filtrado = gdf.copy()
@@ -382,3 +400,16 @@ with col_graf2:
     )
 
     st.plotly_chart(fig_barra, use_container_width=True, key="grafico_barra_area")
+
+st.subheader("Documentação do projeto")
+
+with st.expander("📄 Abrir README.md"):
+    readme = carregar_readme()
+    st.markdown(readme)
+
+    st.download_button(
+        "⬇️ Baixar README.md",
+        readme.encode("utf-8"),
+        "README.md",
+        "text/markdown"
+    )
